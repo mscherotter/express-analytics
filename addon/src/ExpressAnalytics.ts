@@ -1,10 +1,19 @@
 import { AddOnSDKAPI} from "https://new.express.adobe.com/static/add-on-sdk/sdk.js";
 
-export class Analytics{
+export class ExpressAnalytics{
     private _addOnSDK: AddOnSDKAPI;
     private _endpoint: string;
     private _devEndpoint: string;
     private _addOnName: string;
+
+    private get url() {
+        let url = this._endpoint;
+
+        if (process.env.NODE_ENV == "development"){
+            url = this._devEndpoint;
+        }
+        return url;
+    }
 
     /** Create an analytics object
      * @param addOnSDK the Adobe Express add-on SDK
@@ -15,6 +24,8 @@ export class Analytics{
      * endpoint will be used when in development
      */
     constructor(addOnSDK: AddOnSDKAPI, addOnName: string,  endpoint: string, devEndpoint?: string){
+        if (!addOnSDK) throw new Error("Express Analytics: addOnSDK is undefined.");
+
         this._addOnSDK = addOnSDK;
         this._addOnName = addOnName;
         this._endpoint = endpoint;
@@ -36,6 +47,7 @@ export class Analytics{
         const parameters = [
             `a=${this._addOnSDK.apiVersion}`,
             `d=${platform.deviceClass}`,
+            `e=user`,
             `f=${this._addOnSDK.app.ui.format}`,
             `h=${height}`,
             `i=${platform.inAppPurchaseAllowed}`,
@@ -50,22 +62,52 @@ export class Analytics{
             `w=${width}`
         ];
 
-        let url = this._endpoint;
-
-        if (process.env.NODE_ENV == "development"){
-            url = this._devEndpoint;
-        }
-
-        url+=`&${parameters.join("&")}`;
+        const url = `${this.url}&${parameters.join("&")}`;
 
         const response = await fetch(url, { 
             method:"post"
         });
 
+        if (!response.ok){
+            console.error(`Error tracking user with Express Analytics: ${response.statusText}.`);
+        }
+
         return response.ok;
     }
 
-    async trackEventAsync(){
+    /** track an event
+     * @param eventName: the event name
+     * @param extra: extra parameters to record
+     */
+    async trackEventAsync(eventName: string, extra?: Record<string,string>){
+        if (eventName == "user") throw new Error("Express Analytics: Cannot track a user event using trackEventAsync(), use  trackUserAsync() instead.");
         
+        const userId = await this._addOnSDK.app.currentUser.userId();
+        
+        const parameters = [
+            `e=${eventName}`,
+            `n=${this._addOnName}`,
+            `u=${userId}`
+        ];
+
+        if (extra){
+            // add extra parameters
+            Object.entries(extra).forEach((value: [string, string])=>{
+                const entry = `ex-${value[0]}=${value[1]}`;
+                parameters.push(entry);
+            })
+        }
+
+        const url = `${this.url}&${parameters.join("&")}`;
+
+        const response = await fetch(url, { 
+            method:"post"
+        });
+
+        if (!response.ok){
+            console.error(`Error tracking event ${eventName} with Express Analytics: ${response.statusText}.`);
+        }
+
+        return response.ok;
     }
 }
