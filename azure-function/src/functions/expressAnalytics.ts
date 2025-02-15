@@ -1,3 +1,6 @@
+/** Express Analytics
+ * Copyright (c) 2025 Scherotter Enterprises.
+ */
 import { TableClient, TableServiceClient } from "@azure/data-tables";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 const { v4: uuidv4 } = require('uuid');
@@ -15,32 +18,47 @@ interface IAnalyticsUserEntry{
 
     /** screen width */
     width: number;
+
     /** screen height */
     height: number;
+
     /** locale string */
     locale: string;
+
     /** add-on version */
     version: string;
+
     /** in-app purchased allowed */
     inAppPurchaseAllowed: boolean;
+
     /** the browser platform */
     platform: string;
+
     /** is a free user being simulated? */
     simulateFreeUser: boolean;
+
     /** the device class */
     deviceClass: string;
+
     /** is a premium user */
     premiumUser: boolean;
+
     /** the current theme */
     theme: string;
+
     /** the current locale format */
     format: string;
+
     /** the Adobe Express API version */
     apiVersion: string;
+
     /** the date of first usage of the add-on */
     firstUsage: Date;
 
+    /** Screen Color depth */
     colorDepth: number;
+
+    /** Screen Pixel depth */
     pixelDepth: number;
 };
 

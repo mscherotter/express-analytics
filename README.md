@@ -1,13 +1,21 @@
 # Adobe Express Add-on Analytics
 
-A package add to an Adobe Express add-on to collect basic user analytics and an Azure function to serve as an endpoint for the package.
+A package add to an [Adobe Express](https://new.express.adobe.com/) add-on to collect basic user analytics and an Azure function to serve as an endpoint for the package.
+
+## Contents
+
+1. [Parameters tracked](#parameters-tracked)
+2. [Add-on package](#add-on-package)
+3. [Azure function](#azure-function)
+4. [Sample Adobe Express add-on](#sample-adobe-express-add-on)
+5. [Help is available](#help-is-available)
 
 ## Parameters Tracked
 
 - a Adobe Express API Version
-- c Screen color depth,
+- c Screen color depth
 - d Platform device class
-- e Event (user or event name specified in trackEventAsync() )
+- e Event (user or event name specified in `trackEventAsync()`)
 - f UI Format
 - h Screen height
 - i In-app purchases allowed

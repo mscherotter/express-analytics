@@ -1,5 +1,5 @@
 /** Express Analytics
- * Copyright (c) 2025 Michael S. Scherotter
+ * Copyright (c) 2025 Scherotter Enterprises
  */
 
 /** Interface from Adobe Express addon SDK "@types/adobe__ccweb-add-on-sdk": "^1.3.0", */
