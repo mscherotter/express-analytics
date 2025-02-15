@@ -1,6 +1,6 @@
 # Adobe Express Add-on Analytics
 
-A package add to an [Adobe Express](https://new.express.adobe.com/) add-on to collect basic user analytics and an Azure function to serve as an endpoint for the package.
+A package add to an [Adobe Express](https://new.express.adobe.com/) add-on to collect basic user analytics, an Azure function to serve as an endpoint for the package, and a Power BI dashboard to visualize the telemetry.
 
 ## Contents
 
