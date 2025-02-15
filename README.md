@@ -60,8 +60,14 @@ A sample Adobe Express Add-on that demonstrates how to use the package:
 
 ## Telemetry Dashboard
 
-The Azure function will put data in Azure Storage Data tables `expressAnalyticsUsers` and `expressAnalyticsEvents` and these tables can be visualized in a Microsoft Power BI dashboard with this [template](dashboard/Adobe%20Express%20Add-on%20Telemetry%20Dashboard.pbit) producing a dashboard that can be customized to look like this:
+The Azure function will put data in Azure Storage Data tables `expressAnalyticsUsers` and `expressAnalyticsEvents` and these tables can be visualized in a [Microsoft Power BI](https://www.microsoft.com/en-us/power-platform/products/power-bi) dashboard with this [template](dashboard/Adobe%20Express%20Add-on%20Telemetry%20Dashboard.pbit) producing a dashboard that can be customized to look like this:
 
 ![Creative Coding Add-on Telemetry Dashboard](/dashboard/creative-coding-dashboard.png)
+
+To use the template
+
+1. Download the file at `dashboard/Adobe Express Add-on Telemetry Dashboard.pbit`
+2. Open it in [Microsoft Power BI Desktop](https://www.microsoft.com/en-us/power-platform/products/power-bi)
+3. Connect the Azure Data Tables  `expressAnalyticsUsers` and `expressAnalyticsEvents` created by your Azure function.
 
 This dashboard is used to collect telemetry from the Adobe Express Add-on [Creative Coding](https://adobesparkpost.app.link/TR9Mb7TXFLb?addOnId=w2ji95k72).
