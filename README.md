@@ -71,3 +71,13 @@ To use the template
 3. Connect the Azure Data Tables  `expressAnalyticsUsers` and `expressAnalyticsEvents` created by your Azure function.
 
 This dashboard is used to collect telemetry from the Adobe Express Add-on [Creative Coding](https://adobesparkpost.app.link/TR9Mb7TXFLb?addOnId=w2ji95k72).
+
+## Help is available
+
+[Galeryst.com Creative Software Development](https://blog.galeryst.com/galeryst-custom-creative-software-development/) is available to help organizations build out any part of this type of solution including:
+
+- Adobe Express Add-on development
+- Microsoft Azure Software Engineering
+- Microsoft Power BI dashboard development
+
+Please reach out today if you need help.
