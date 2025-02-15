@@ -1,0 +1,26 @@
+import { AddOnSDKAPI} from "https://new.express.adobe.com/static/add-on-sdk/sdk.js";
+
+// Adobe Express Add-on Analytics
+export class ExpressAnalytics {
+    /** Create an analytics object
+   * @param addOnSDK the Adobe Express add-on SDK
+   * @param addOnName the name of the Add-on - this should not change once
+   * you start collecting data
+   * @param endpoint the production endpoint
+   * @param devEndpoint the development endpoint, if not specified the 
+   * endpoint will be used when in development
+   */
+  constructor(addOnSDK: AddOnSDKAPI, addOnName: string,  endpoint: string, devEndpoint?: string);
+  
+  /** track a user
+   * @returns an async promise with a boolean value indicating whether the tracking POST succeeded
+   */
+  trackUserAsync() : Promise<boolean>;
+
+  /** track an event
+   * @param eventName: the event name
+   * @param extra: extra parameters to record
+   */
+  trackEventAsync(eventName: string, extra?: Record<string,string>) : Promise<boolean>;
+}
+  

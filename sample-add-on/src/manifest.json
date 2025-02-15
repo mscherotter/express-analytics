@@ -1,0 +1,22 @@
+{
+    "testId": "e2a9c0c6-f4e8-4e08-a7b0-0a72c3cc8e66",
+    "name": "Test Express App with Analytics",
+    "version": "1.0.0",
+    "manifestVersion": 2,
+    "requirements": {
+        "apps": [
+            {
+                "name": "Express",
+                "apiVersion": 1
+            }
+        ]
+    },
+    "entryPoints": [
+        {
+            "type": "panel",
+            "id": "panel1",
+            "main": "index.html",
+            "documentSandbox": "code.js"
+        }
+    ]
+}

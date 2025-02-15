@@ -5,12 +5,14 @@
       "experimentalDecorators": true,
       "module": "ESNext",
       "moduleResolution": "node",
-      "outDir": "dist",
+      "outDir": ".",
       "target": "ESNext",
       "useDefineForClassFields": false,
       "strict": true,
-      "forceConsistentCasingInFileNames": true
+      "forceConsistentCasingInFileNames": true,
+      "skipLibCheck": true
   },
   "exclude": ["node_modules"],
-  "include": ["*"]
+  "include": ["src/*"]
 }
+
