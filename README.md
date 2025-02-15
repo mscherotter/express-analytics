@@ -21,3 +21,16 @@ A sample Adobe Express Add-on that demonstrates how to use the package:
 
 - [Source Code folder](sample-add-on)
 - [Example Typescript usage in App.ts](sample-add-on/src/ui/components/App.ts)
+
+### Testing Add-on
+
+1. build and start Azure Function for testing locally at `http://localhost:7071` or similar endpoint.
+2. Use the free [NGrok](https://ngrok.com/) to make a HTTPS gateway to the localhost endpoint: `ngrok http http://localhost:7071 --host-header=localhost`
+3. Modify the devEndpoint parameter in the ExpressAnalytics constructor to have the NGrok URL
+4. Build and run the add-on:
+
+#### Running the add-on
+
+    cd sample-add-on
+    npm install
+    npm run start
