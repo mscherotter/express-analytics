@@ -4,10 +4,10 @@ A package add to an Adobe Express add-on to collect basic user analytics and an 
 
 ## Parameters Tracked
 
-- a Adobe Express API Version`,
+- a Adobe Express API Version
 - c Screen color depth,
 - d Platform device class
-- e Event (user or event name specified in trackEventAsync()
+- e Event (user or event name specified in trackEventAsync() )
 - f UI Format
 - h Screen height
 - i In-app purchases allowed
