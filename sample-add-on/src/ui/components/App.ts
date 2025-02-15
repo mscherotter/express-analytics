@@ -24,7 +24,7 @@ export class App extends LitElement {
     addOnUISdk!: AddOnSDKAPI;
 
     @state()
-    private _sandboxProxy: DocumentSandboxApi;
+    private _sandboxProxy!: DocumentSandboxApi;
 
     private _analytics!: ExpressAnalytics;
 
@@ -35,6 +35,8 @@ export class App extends LitElement {
     async firstUpdated(): Promise<void> {
         // Get the UI runtime.
         const { runtime } = this.addOnUISdk.instance;
+
+        if (!runtime.apiProxy) throw new Error("Unable to get Adobe Express Add-on runtime proxy.");
 
         // Get the proxy object, which is required
         // to call the APIs defined in the Document Sandbox runtime
