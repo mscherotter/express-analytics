@@ -1,5 +1,7 @@
 # Adobe Express Add-on Analytics
 
+A package add to an Adobe Express add-on to collect basic user analytics and an Azure function to serve as an endpoint for the package.
+
 ## Parameters Tracked
 
 - a Adobe Express API Version`,
