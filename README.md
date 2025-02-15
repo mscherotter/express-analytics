@@ -35,6 +35,7 @@ Add this package to Adobe Express Add-ons to enable analytics reporting
 
 An Azure function endpoint to work with the express-addon-analytics package
 
+- [ReadMe with setup instructions](azure-function/readme.md)
 - [Source Code folder](azure-function)
 - [Function TypeScript source code](azure-function/src/functions/expressAnalytics.ts)
 
@@ -47,10 +48,9 @@ A sample Adobe Express Add-on that demonstrates how to use the package:
 
 ### Testing Add-on
 
-1. build and start Azure Function for testing locally at `http://localhost:7071` or similar endpoint.
-2. Use the free [NGrok](https://ngrok.com/) to make a HTTPS gateway to the localhost endpoint: `ngrok http http://localhost:7071 --host-header=localhost`
-3. Modify the devEndpoint parameter in the ExpressAnalytics constructor to have the NGrok URL
-4. Build and run the add-on:
+1. Start the Azure function with these [setup instructions](azure-function/readme.md)
+2. Modify the devEndpoint parameter in the [ExpressAnalytics constructor](sample-add-on/src/ui/components/App.ts) to have the NGrok URL from step 1.
+3. Build and run the add-on:
 
 #### Running the add-on
 
