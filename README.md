@@ -1,5 +1,26 @@
 # Adobe Express Add-on Analytics
 
+## Parameters Tracked
+
+- a Adobe Express API Version`,
+- c Screen color depth,
+- d Platform device class
+- e Event (user or event name specified in trackEventAsync()
+- f UI Format
+- h Screen height
+- i In-app purchases allowed
+- l UI Locale
+- n Add-on name
+- p Is the user a premium user
+- pd Screen pixel depth
+- pl Device platform
+- s Developer flag to simulate a free user
+- t UI theme
+- u The user Id
+- v Add-on version from the manifest
+- w Screen width
+- ex-[name] Extra parameter (can have multiple)
+
 ## Add-on Package
 
 Add this package to Adobe Express Add-ons to enable analytics reporting
