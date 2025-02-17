@@ -1,6 +1,8 @@
 # Adobe Express Add-on Analytics Azure Function
 
-A function to run on Microsoft Azure in the cloud to serve as an endpoint for data collection from an Adobe Express Add-on using the [Adobe Express Add-on Analytics](https://www.npmjs.com/package/express-addon-analytics) NPM Package
+A function to run on Microsoft Azure in the cloud to serve as an endpoint for
+data collection from an Adobe Express Add-on using the
+[Adobe Express Add-on Analytics](https://www.npmjs.com/package/express-addon-analytics) NPM Package. A single function app can support multiple Add-ons.
 
 ## Development Testing with Visual Studio Code
 

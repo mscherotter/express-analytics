@@ -33,7 +33,7 @@ A package add to an [Adobe Express](https://new.express.adobe.com/) add-on to co
 
 ## Add-on Package
 
-Add this package to Adobe Express Add-ons to enable analytics reporting
+Add this package to an Adobe Express Add-on to enable analytics reporting
 
 - [NPM Package express-addon-analytics](https://www.npmjs.com/package/express-addon-analytics)
 - [Package readme](addon-package/readme.md)
