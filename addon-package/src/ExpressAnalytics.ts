@@ -57,25 +57,32 @@ export class ExpressAnalytics{
     private _endpoint: string;
     private _devEndpoint: string;
     private _addOnName: string;
+    private static _pulseStarted = false;
 
     /** The pulse interval in milliseconds (default is 15 seconds) */
     static PulseInterval = 15000;
 
     /** Create an analytics object
      * @param addOnSDK the Adobe Express add-on SDK
-     * @param endpoint the production endpoint
-     * @param devEndpoint the development endpoint, if not specified the 
+     * @param endpoint the https:// production endpoint
+     * @param devEndpoint the https:// development endpoint, if not specified the 
      * endpoint will be used when in development
      */
     constructor(addOnSDK: IAdobeExpressAddOnSDKAPI, endpoint: string, devEndpoint?: string){
         if (!addOnSDK) throw new Error("Express Analytics: addOnSDK is undefined.");
+        if (!endpoint) throw new Error("Express Analytics: endpoint cannot be empty.");
+        if (!endpoint.startsWith("https://")) throw new Error("Express Analytics: endpoint must start with https://");
+        if (devEndpoint && !devEndpoint.startsWith("https://")) throw new Error("Express Analytics: devEndpoint must start with https://");
 
         this._addOnSDK = addOnSDK;
         this._addOnName = encodeURIComponent(addOnSDK.instance.manifest.name as string);
         this._endpoint = endpoint;
         this._devEndpoint = devEndpoint ? devEndpoint : endpoint;
 
-        setInterval(ExpressAnalytics.onPulseAsync, ExpressAnalytics.PulseInterval, this);
+        if (!ExpressAnalytics._pulseStarted){
+            setInterval(ExpressAnalytics.onPulseAsync, ExpressAnalytics.PulseInterval, this);
+            ExpressAnalytics._pulseStarted = true;
+        }
     }
 
     /** track a user
@@ -140,6 +147,7 @@ export class ExpressAnalytics{
      * @param extra: extra parameters to record
      */
     async trackEventAsync(eventName: string, extra?: Record<string,string>) : Promise<boolean>{
+        if (!eventName) throw new Error("Express Analytics: eventName cannot be blank");
         if (eventName == "_user") throw new Error("Express Analytics: Cannot track a user event using trackEventAsync(), use  trackUserAsync() instead.");
         
         const userId = await this._addOnSDK.app.currentUser.userId();
