@@ -65,10 +65,12 @@ interface IAnalyticsUserEntry{
 /** the Express Analytics endpoint processing */
 export async function expressAnalytics(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http trigger for Express Analytics url "${request.url}"`);
-
-    const event = request.query.get("e");
-
+   
     try{
+        if (!azureStorageConnectionString) throw new Error("Missing AZURE_STORAGE_CONNECTION environment variable.");
+
+        const event = request.query.get("e");
+
         if (event == "_user"){
             await upsertUserAsync(request.query, context);
         } else{
@@ -78,7 +80,7 @@ export async function expressAnalytics(request: HttpRequest, context: Invocation
         return { body: `Processed` };
     } catch (error:any){
         
-        console.error(error.message);
+        context.error(error);
 
         return { 
             status: 401,
