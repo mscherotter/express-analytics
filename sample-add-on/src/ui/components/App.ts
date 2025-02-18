@@ -18,6 +18,20 @@ import { style } from "./App.css";
 import { AddOnSDKAPI, RuntimeType } from "https://new.express.adobe.com/static/add-on-sdk/sdk.js";
 import { ExpressAnalytics} from "express-addon-analytics/ExpressAnalytics";
 
+/** Analytics endpoint URL 
+ * @todo Update with your cloud endpoint 
+*/
+const endpoint = "https://<your cloud function endpoint with any key in the url>"
+
+/** Analytics developer endpoint URL 
+ * @todo Update with your developer endpoint
+ * @description the actual endpoint for local testing might be something like 
+    http://localhost:7071 which is not accessible from Adobe
+    Express so you use NGrok (https://ngrok.com/) as a proxy that will 
+    give you an https endpoint for local testing.
+*/
+const devEndpoint = "https://.....ngrok-free.app/api/expressAnalytics?key=_test";
+
 @customElement("add-on-app")
 export class App extends LitElement {
     @property({ type: Object })
@@ -42,14 +56,6 @@ export class App extends LitElement {
         // to call the APIs defined in the Document Sandbox runtime
         // i.e., in the `code.ts` file of this add-on.
         this._sandboxProxy = await runtime.apiProxy(RuntimeType.documentSandbox);
-
-        const endpoint = "https://<your cloud function endpoint with any key in the url>"
-
-        // the actual endpoint for local testing might be something like 
-        // http://localhost:7071 which is not accessible from Adobe
-        // Express so you use NGrok (https://ngrok.com/) as a proxy that will 
-        // give you an https endpoint for local testing.
-        const devEndpoint = "https://.....ngrok-free.app/api/expressAnalytics?key=_test";
 
         this._analytics = new ExpressAnalytics(this.addOnUISdk, endpoint, devEndpoint);
                                                                                      

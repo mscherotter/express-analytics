@@ -69,8 +69,6 @@ The sample is based on the Typescript/Spectrum Web Components project created wi
 
 See this [quickstart](https://developer.adobe.com/express/add-ons/docs/guides/getting_started/quickstart/) to create your own Adobe Express Add-on project. The [express-addon-analytics](https://www.npmjs.com/package/express-addon-analytics) package should work with all project types.
 
-
-
 1. Start the Azure function with these [setup instructions](azure-function/readme.md)
 2. Modify the devEndpoint parameter in the [ExpressAnalytics constructor](sample-add-on/src/ui/components/App.ts) to have the NGrok URL from step 1.
 3. Build and run the add-on:
