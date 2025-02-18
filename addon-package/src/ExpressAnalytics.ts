@@ -94,7 +94,7 @@ export class ExpressAnalytics{
             `a=${this._addOnSDK.apiVersion}`,
             `c=${screen.colorDepth}`,
             `d=${platform.deviceClass}`,
-            `e=user`,
+            `e=_user`,
             `f=${this._addOnSDK.app.ui.format}`,
             `h=${screen.height}`,
             `i=${platform.inAppPurchaseAllowed}`,
@@ -140,12 +140,12 @@ export class ExpressAnalytics{
      * @param extra: extra parameters to record
      */
     async trackEventAsync(eventName: string, extra?: Record<string,string>) : Promise<boolean>{
-        if (eventName == "user") throw new Error("Express Analytics: Cannot track a user event using trackEventAsync(), use  trackUserAsync() instead.");
+        if (eventName == "_user") throw new Error("Express Analytics: Cannot track a user event using trackEventAsync(), use  trackUserAsync() instead.");
         
         const userId = await this._addOnSDK.app.currentUser.userId();
         
         const parameters = [
-            `e=${eventName}`,
+            `e=${encodeURIComponent(eventName)}`,
             `n=${encodeURIComponent(this._addOnName)}`,
             `u=${userId}`
         ];
@@ -174,13 +174,13 @@ export class ExpressAnalytics{
     }
 
     private static addExtra(this: string[], value: [string,string]){
-        const entry = `ex-${value[0]}=${value[1]}`;
+        const entry = `ex-${encodeURIComponent(value[0])}=${encodeURIComponent(value[1])}`;
 
         this.push(entry);
     } 
 
     private static async onPulseAsync(analytics: ExpressAnalytics){
-        await analytics.trackEventAsync("pulse");
+        await analytics.trackEventAsync("_pulse");
     }
 
     private getUrl(parameters: any) {

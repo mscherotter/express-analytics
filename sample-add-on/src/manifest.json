@@ -1,7 +1,7 @@
 {
     "testId": "e2a9c0c6-f4e8-4e08-a7b0-0a72c3cc8e66",
     "name": "Test Express App with Analytics",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "manifestVersion": 2,
     "requirements": {
         "apps": [

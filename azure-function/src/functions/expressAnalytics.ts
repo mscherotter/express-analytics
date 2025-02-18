@@ -35,7 +35,7 @@ interface IAnalyticsUserEntry{
     platform: string;
 
     /** is a free user being simulated? */
-    simulateFreeUser: boolean;
+    simulateFreeUser?: boolean;
 
     /** the device class */
     deviceClass: string;
@@ -62,13 +62,14 @@ interface IAnalyticsUserEntry{
     pixelDepth: number;
 };
 
+/** the Express Analytics endpoint processing */
 export async function expressAnalytics(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http trigger for Express Analytics url "${request.url}"`);
 
     const event = request.query.get("e");
 
     try{
-        if (event == "user"){
+        if (event == "_user"){
             await upsertUserAsync(request.query, context);
         } else{
             await createEventAsync(request.query);
@@ -122,9 +123,14 @@ async function createEventAsync(query: URLSearchParams){
     return newEntity;
 }
 
+/** Add any extra parameteres that start with ex-
+ * @param this the fields object to add to
+ * @param value the value
+ * @param name the key name
+ */
 function addExtraParameters(this: any, value:string, name:string) {
     if (name.startsWith("ex-")){
-        const fieldName = name.substring(3);
+        const fieldName = decodeURIComponent(name.substring(3));
         const existingFields = ["partitionKey", "rowKey", "timestamp"];
 
         if (existingFields.includes(fieldName)) return;
@@ -169,7 +175,6 @@ async function upsertUserAsync(query: URLSearchParams, context:InvocationContext
         version: version,
         inAppPurchaseAllowed: inAppPurchaseAllowed == "true",
         platform: platform,
-        simulateFreeUser: simulateFreeUser == "true",
         deviceClass: deviceClass,
         premiumUser: premiumUser == "true",
         theme: theme,
@@ -180,6 +185,10 @@ async function upsertUserAsync(query: URLSearchParams, context:InvocationContext
         pixelDepth: parseInt(pixelDepth)
     };
 
+    if (simulateFreeUser){
+        // this value will only be there during development if at all
+        entity.simulateFreeUser = simulateFreeUser == "true";
+    }
 
     query.forEach(addExtraParameters, entity);
 
