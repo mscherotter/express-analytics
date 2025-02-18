@@ -15,7 +15,7 @@ Analytics for Adobe Express Add-ons
     // in App.firstUpdated() function 
     await this.addOnUISdk.ready;
 
-    const analytics = new ExpressAnalytics(this.addOnUISdk, "AddOnName, "https://myendpointUrl.com");
+    this.analytics = new ExpressAnalytics(this.addOnUISdk, "https://myendpointUrl.com");
 
     await analytics.trackUserAsync();
 
@@ -26,10 +26,8 @@ Analytics for Adobe Express Add-ons
 
     // this.addOnUISdk has already been initialized
 
-    const analytics = new ExpressAnalytics(this.addOnUISdk, "AddOnName, "https://myendpointUrl.com");
-
     // track a page deletion event passing the page width and height as parameters
-    await analytics.trackEventAsync("delete_page", {
+    await this.analytics.trackEventAsync("delete_page", {
         width: pageWidth, 
         height: pageHeight});
 

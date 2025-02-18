@@ -20,7 +20,7 @@
         "@oclif/core": "^4.2.7",
         "@spectrum-web-components/button": "0.39.4",
         "@spectrum-web-components/theme": "0.39.4",
-        "express-addon-analytics": "^1.0.23",
+        "express-addon-analytics": "^1.0.24",
         "lit": "2.8.0"
     },
     "devDependencies": {
