@@ -10,23 +10,43 @@ export interface IAdobeExpressPlatform{
 }
 /** Interface from Adobe Express addon SDK "@types/adobe__ccweb-add-on-sdk": "^1.3.0", */
 export interface IAdobeExpressAddOnSDKAPI{
+    /** the API version */
     apiVersion:string,
+    /** the app */
     app: {
+        /** the current user */
         currentUser: {
+            /** the User Id
+             * @returns an async promise with a string
+             */
             userId(): Promise<string>,
+            /** is the user premium
+             * @returns an async promise with a boolean value
+             */
             isPremiumUser() : Promise<boolean>
         },
+        /** the developer flags */
         devFlags : {
+            /** True to simulated a free user */
             simulateFreeUser: boolean
         },
+        /** Gets the current platform
+         * @returns an async promise with the Adobe Express Platform
+         */
         getCurrentPlatform() : Promise<IAdobeExpressPlatform>,
+        /** The user interface */
         ui:{
+            /** the format */
             format:string,
+            /** the locale */
             locale:string,
+            /** the theme name */
             theme: string
         }
     },
+    /** The add-on instance */
     instance: {
+        /** The add-on manifest */
         manifest: Record<string, unknown>
     }
 }
@@ -38,36 +58,24 @@ export class ExpressAnalytics{
     private _devEndpoint: string;
     private _addOnName: string;
 
-    private getUrl(parameters: any) {
-        let url = this._endpoint;
-
-        if (process.env.NODE_ENV == "development"){
-            url = this._devEndpoint;
-        }
-        url;
-
-        if (url.includes("?")){
-            return `${url}&${parameters.join("&")}`;
-        }
-
-        return `${url}?${parameters.join("&")}`;
-    }
+    /** The pulse interval in milliseconds (default is 15 seconds) */
+    static PulseInterval = 15000;
 
     /** Create an analytics object
      * @param addOnSDK the Adobe Express add-on SDK
-     * @param addOnName the name of the Add-on - this should not change once
-     * you start collecting data
      * @param endpoint the production endpoint
      * @param devEndpoint the development endpoint, if not specified the 
      * endpoint will be used when in development
      */
-    constructor(addOnSDK: IAdobeExpressAddOnSDKAPI, addOnName: string,  endpoint: string, devEndpoint?: string){
+    constructor(addOnSDK: IAdobeExpressAddOnSDKAPI, endpoint: string, devEndpoint?: string){
         if (!addOnSDK) throw new Error("Express Analytics: addOnSDK is undefined.");
 
         this._addOnSDK = addOnSDK;
-        this._addOnName = encodeURIComponent(addOnName);
+        this._addOnName = encodeURIComponent(addOnSDK.instance.manifest.name as string);
         this._endpoint = endpoint;
         this._devEndpoint = devEndpoint ? devEndpoint : endpoint;
+
+        setInterval(ExpressAnalytics.onPulseAsync, ExpressAnalytics.PulseInterval, this);
     }
 
     /** track a user
@@ -80,8 +88,8 @@ export class ExpressAnalytics{
 
         const platform = await this._addOnSDK.app.getCurrentPlatform();
 
-        const screen =window.screen; 
-
+        const screen = window.screen; 
+        
         const parameters = [
             `a=${this._addOnSDK.apiVersion}`,
             `c=${screen.colorDepth}`,
@@ -95,12 +103,15 @@ export class ExpressAnalytics{
             `p=${isPremiumUser}`,
             `pd=${screen.pixelDepth}`,
             `pl=${platform.platform}`,
-            `s=${this._addOnSDK.app.devFlags.simulateFreeUser}`,
             `t=${this._addOnSDK.app.ui.theme}`,
             `u=${userId}`,
             `v=${this._addOnSDK.instance.manifest.version}`,
             `w=${screen.width}`
         ];
+
+        if (ExpressAnalytics.isDevelopment){
+            parameters.push(`s=${this._addOnSDK.app.devFlags.simulateFreeUser}`);
+        }
 
         if (extra){
             // add extra parameters
@@ -125,7 +136,7 @@ export class ExpressAnalytics{
     }
 
     /** track an event
-     * @param eventName: the event name
+     * @param eventName: the event name 
      * @param extra: extra parameters to record
      */
     async trackEventAsync(eventName: string, extra?: Record<string,string>) : Promise<boolean>{
@@ -158,10 +169,33 @@ export class ExpressAnalytics{
         return response.ok;
     }
 
+    private static get isDevelopment() {
+        return process.env.NODE_ENV == "development";
+    }
+
     private static addExtra(this: string[], value: [string,string]){
         const entry = `ex-${value[0]}=${value[1]}`;
 
         this.push(entry);
     } 
+
+    private static async onPulseAsync(analytics: ExpressAnalytics){
+        await analytics.trackEventAsync("pulse");
+    }
+
+    private getUrl(parameters: any) {
+        let url = this._endpoint;
+
+        if (ExpressAnalytics.isDevelopment){
+            url = this._devEndpoint;
+        }
+        url;
+
+        if (url.includes("?")){
+            return `${url}&${parameters.join("&")}`;
+        }
+
+        return `${url}?${parameters.join("&")}`;
+    }
 }
 

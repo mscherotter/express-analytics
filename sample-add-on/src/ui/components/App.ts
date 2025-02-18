@@ -51,7 +51,7 @@ export class App extends LitElement {
         // give you an https endpoint for local testing.
         const devEndpoint = "https://.....ngrok-free.app/api/expressAnalytics?key=_test";
 
-        this._analytics = new ExpressAnalytics(this.addOnUISdk, "Test Express App", endpoint, devEndpoint);
+        this._analytics = new ExpressAnalytics(this.addOnUISdk, endpoint, devEndpoint);
                                                                                      
         await this._analytics.trackUserAsync();
     }

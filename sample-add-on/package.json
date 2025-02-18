@@ -17,10 +17,10 @@
         "Galeryst"
     ],
     "dependencies": {
-        "@oclif/core": "^4.2.6",
+        "@oclif/core": "^4.2.7",
         "@spectrum-web-components/button": "0.39.4",
         "@spectrum-web-components/theme": "0.39.4",
-        "express-addon-analytics": "^1.0.20",
+        "express-addon-analytics": "^1.0.21",
         "lit": "2.8.0"
     },
     "devDependencies": {
