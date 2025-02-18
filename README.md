@@ -1,16 +1,23 @@
 # Adobe Express Add-on Analytics
 
-A package add to an [Adobe Express](https://new.express.adobe.com/) add-on to collect basic user analytics, an Azure function to serve as an endpoint for the package, and a Power BI dashboard to visualize the telemetry.
+A package add to an [Adobe Express](https://new.express.adobe.com/) add-on to collect user analytics, an Azure function to serve as an endpoint for the package, and a Power BI dashboard to visualize the telemetry.
 
 ## Contents
 
-1. [Parameters tracked](#parameters-tracked)
-2. [Add-on package](#add-on-package)
-3. [Azure function](#azure-function)
-4. [Sample Adobe Express add-on](#sample-adobe-express-add-on)
-5. [Help is available](#help-is-available)
+1. [Features](#features)
+2. [Telemetry parameters tracked](#telemetry-parameters-tracked)
+3. [Add-on package](#add-on-package)
+4. [Azure function](#azure-function)
+5. [Sample Adobe Express add-on](#sample-adobe-express-add-on)
+6. [Help is available](#help-is-available)
 
-## Parameters Tracked
+## Features
+
+- Tracks user telemetry
+- Tracks events added by developers
+- Tracks session duration with a pulse every 15 seconds
+
+## Telemetry parameters tracked
 
 - a Adobe Express API Version
 - c Screen color depth
@@ -24,7 +31,7 @@ A package add to an [Adobe Express](https://new.express.adobe.com/) add-on to co
 - p Is the user a premium user
 - pd Screen pixel depth
 - pl Device platform
-- s Developer flag to simulate a free user
+- s Developer flag to simulate a free user (only sent during local machine development)
 - t UI theme
 - u The user Id
 - v Add-on version from the manifest
