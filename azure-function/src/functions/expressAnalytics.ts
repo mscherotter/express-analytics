@@ -9,6 +9,9 @@ const azureStorageConnectionString = <string>process.env.AZURE_STORAGE_CONNECTIO
 const userTableName = "expressAnalyticsUsers";
 const eventTableName = "expressAnalyticsEvents";
 
+/** the number of minutes between events to trigger a new session*/
+const sessionInactivityMinutes = 30;
+
 /** Analytics user entry */
 interface IAnalyticsUserEntry{
     /** the add-on name */
@@ -111,8 +114,8 @@ async function createEventAsync(query: URLSearchParams, context: InvocationConte
     const tableServiceClient = TableServiceClient.fromConnectionString(azureStorageConnectionString);
 
     await tableServiceClient.createTable(eventTableName);
-    
-    let eventEntity = {
+
+    let eventEntity:IEventRecord = {
         partitionKey: `${name}|${userId}`,
         rowKey: `${event}|${uuidv4()}`,
         event: event,
@@ -124,7 +127,7 @@ async function createEventAsync(query: URLSearchParams, context: InvocationConte
     const tableClient = TableClient.fromConnectionString(azureStorageConnectionString, eventTableName);
 
     let sessionTime = new Date();
-    sessionTime.setMinutes(sessionTime.getMinutes() - 30);
+    sessionTime.setMinutes(sessionTime.getMinutes() - sessionInactivityMinutes);
     const sessionTimeString = sessionTime.toISOString();
     
     const filter = `partitionKey eq '${eventEntity.partitionKey}' and timeStamp ge ${sessionTimeString}`;
@@ -140,7 +143,9 @@ async function createEventAsync(query: URLSearchParams, context: InvocationConte
     });
 
     for await (const eventRecord of eventRecords){
-        eventEntity.sessionId = eventRecord.sessionId;
+        if (eventRecord.sessionId){
+            eventEntity.sessionId = eventRecord.sessionId;
+        }
     }
 
     const newEntity = await tableClient.createEntity(eventEntity);
@@ -148,12 +153,22 @@ async function createEventAsync(query: URLSearchParams, context: InvocationConte
     return newEntity;
 }
 
+/** Event Record */
 interface IEventRecord{
+    /** the partiton key <Add-on name>|<User id> */
     partitionKey:   string;
+
+    /** the row key <Event name>|<GUID>*/
     rowKey:         string;
+    
+    /** the timestamp */
     timeStamp:      Date;
+
+    /** the event name */
     event:          string;
-    sessionId:      string;
+
+    /** the session Id */
+    sessionId?:      string;
 }
 
 /** Add any extra parameteres that start with ex-
