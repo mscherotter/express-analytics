@@ -90,56 +90,61 @@ export class ExpressAnalytics{
      * @returns an async promise with a boolean value indicating whether the tracking POST succeeded
      */
     async trackUserAsync(extra?: Record<string,string>): Promise<boolean>{
-        const userId = await this._addOnSDK.app.currentUser.userId();
-        const isPremiumUser = await this._addOnSDK.app.currentUser.isPremiumUser();
+        try{
+            const userId = await this._addOnSDK.app.currentUser.userId();
+            const isPremiumUser = await this._addOnSDK.app.currentUser.isPremiumUser();
 
-        const platform = await this._addOnSDK.app.getCurrentPlatform();
+            const platform = await this._addOnSDK.app.getCurrentPlatform();
 
-        const screen = window.screen; 
-        
-        const parameters = [
-            `a=${this._addOnSDK.apiVersion}`,
-            `c=${screen.colorDepth}`,
-            `d=${platform.deviceClass}`,
-            `e=_user`,
-            `f=${this._addOnSDK.app.ui.format}`,
-            `h=${screen.height}`,
-            `i=${platform.inAppPurchaseAllowed}`,
-            `l=${this._addOnSDK.app.ui.locale}`,
-            `n=${this._addOnName}`,
-            `p=${isPremiumUser}`,
-            `pd=${screen.pixelDepth}`,
-            `pl=${platform.platform}`,
-            `t=${this._addOnSDK.app.ui.theme}`,
-            `u=${userId}`,
-            `v=${this._addOnSDK.instance.manifest.version}`,
-            `w=${screen.width}`
-        ];
+            const screen = window.screen; 
+            
+            const parameters = [
+                `a=${this._addOnSDK.apiVersion}`,
+                `c=${screen.colorDepth}`,
+                `d=${platform.deviceClass}`,
+                `e=_user`,
+                `f=${this._addOnSDK.app.ui.format}`,
+                `h=${screen.height}`,
+                `i=${platform.inAppPurchaseAllowed}`,
+                `l=${this._addOnSDK.app.ui.locale}`,
+                `n=${this._addOnName}`,
+                `p=${isPremiumUser}`,
+                `pd=${screen.pixelDepth}`,
+                `pl=${platform.platform}`,
+                `t=${this._addOnSDK.app.ui.theme}`,
+                `u=${userId}`,
+                `v=${this._addOnSDK.instance.manifest.version}`,
+                `w=${screen.width}`
+            ];
 
-        if (ExpressAnalytics.isDevelopment){
-            parameters.push(`s=${this._addOnSDK.app.devFlags.simulateFreeUser}`);
+            if (ExpressAnalytics.isDevelopment){
+                parameters.push(`s=${this._addOnSDK.app.devFlags.simulateFreeUser}`);
+            }
+
+            if (extra){
+                // add extra parameters
+                Object.entries(extra).forEach(ExpressAnalytics.addExtra, parameters);
+            }
+
+            const url = this.getUrl(parameters);
+
+            const response = await fetch(url, {
+                method:"POST"
+            });
+
+            if (response.ok){
+                //const textResponse = await response.text();
+                //console.info(`Express Analytics user tracked: ${textResponse}`);
+            } else {
+                const textResponse = await response.text();
+                console.error(`Express Analytics user tracking error: ${textResponse}`);
+            } 
+
+            return response.ok;
+        } catch(error:any){
+            console.error(`Express Analytics user tracking error: ${error.message}`);
+            return false;
         }
-
-        if (extra){
-            // add extra parameters
-            Object.entries(extra).forEach(ExpressAnalytics.addExtra, parameters);
-        }
-
-        const url = this.getUrl(parameters);
-
-        const response = await fetch(url, {
-            method:"POST"
-        });
-
-        if (response.ok){
-            //const textResponse = await response.text();
-            //console.info(`Express Analytics user tracked: ${textResponse}`);
-        } else {
-            const textResponse = await response.text();
-            console.error(`Express Analytics user tracking error: ${textResponse}`);
-        } 
-
-        return response.ok;
     }
 
     /** track an event
@@ -147,34 +152,39 @@ export class ExpressAnalytics{
      * @param extra: extra parameters to record
      */
     async trackEventAsync(eventName: string, extra?: Record<string,string>) : Promise<boolean>{
-        if (!eventName) throw new Error("Express Analytics: eventName cannot be blank");
-        if (eventName == "_user") throw new Error("Express Analytics: Cannot track a user event using trackEventAsync(), use  trackUserAsync() instead.");
-        
-        const userId = await this._addOnSDK.app.currentUser.userId();
-        
-        const parameters = [
-            `e=${encodeURIComponent(eventName)}`,
-            `n=${encodeURIComponent(this._addOnName)}`,
-            `u=${userId}`
-        ];
+        try{
+            if (!eventName) throw new Error("Express Analytics: eventName cannot be blank");
+            if (eventName == "_user") throw new Error("Express Analytics: Cannot track a user event using trackEventAsync(), use  trackUserAsync() instead.");
+            
+            const userId = await this._addOnSDK.app.currentUser.userId();
+            
+            const parameters = [
+                `e=${encodeURIComponent(eventName)}`,
+                `n=${encodeURIComponent(this._addOnName)}`,
+                `u=${userId}`
+            ];
 
-        if (extra){
-            // add extra parameters
-            Object.entries(extra).forEach(ExpressAnalytics.addExtra, parameters);
+            if (extra){
+                // add extra parameters
+                Object.entries(extra).forEach(ExpressAnalytics.addExtra, parameters);
+            }
+
+            const url = this.getUrl(parameters);
+
+            const response = await fetch(url, { 
+                method:"post"
+            });
+
+            if (!response.ok){
+                const text = await response.text();
+                console.error(`Express Analytics error tracking event ${eventName}: ${text}.`);
+            }
+
+            return response.ok;
+        } catch (error: any){
+            console.error(`Express Analytics event tracking tracking error: ${error.message}`);
+            return false;
         }
-
-        const url = this.getUrl(parameters);
-
-        const response = await fetch(url, { 
-            method:"post"
-        });
-
-        if (!response.ok){
-            const text = await response.text();
-            console.error(`Error tracking event ${eventName} with Express Analytics: ${text}.`);
-        }
-
-        return response.ok;
     }
 
     private static get isDevelopment() {

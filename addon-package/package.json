@@ -1,6 +1,6 @@
 {
   "name": "express-addon-analytics",
-  "version": "1.0.26",
+  "version": "1.0.28",
   "author": "Michael S. Scherotter <michael@galeryst.com> (https://galeryst.com)",
   "bugs": "https://github.com/mscherotter/express-analytics/issues",
   "homepage": "https://github.com/mscherotter/express-analytics",
