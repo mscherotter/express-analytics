@@ -74,7 +74,7 @@ export async function expressAnalytics(request: HttpRequest, context: Invocation
         if (event == "_user"){
             await upsertUserAsync(request.query, context);
         } else{
-            await createEventAsync(request.query);
+            await createEventAsync(request.query, context);
         }
 
         return { body: `Processed` };
@@ -99,7 +99,7 @@ app.http('expressAnalytics', {
 /** Create an event entity
  * @param query the HTTP query
  */
-async function createEventAsync(query: URLSearchParams){
+async function createEventAsync(query: URLSearchParams, context: InvocationContext){
     const name = decodeURIComponent(query.get("n") as string);
     const userId = query.get("u");
     const event = query.get("e");
@@ -111,18 +111,49 @@ async function createEventAsync(query: URLSearchParams){
     const tableServiceClient = TableServiceClient.fromConnectionString(azureStorageConnectionString);
 
     await tableServiceClient.createTable(eventTableName);
+    
     let eventEntity = {
         partitionKey: `${name}|${userId}`,
         rowKey: `${event}|${uuidv4()}`,
+        event: event,
+        sessionId: uuidv4()
     } as any;
 
     query.forEach(addExtraParameters, eventEntity);
 
     const tableClient = TableClient.fromConnectionString(azureStorageConnectionString, eventTableName);
 
+    let sessionTime = new Date();
+    sessionTime.setMinutes(sessionTime.getMinutes() - 30);
+    const sessionTimeString = sessionTime.toISOString();
+    
+    const filter = `partitionKey eq '${eventEntity.partitionKey}' and timeStamp ge ${sessionTimeString}`;
+
+    context.info(`Current time is ${new Date().toLocaleTimeString()}`);
+    context.info(`Session time is ${sessionTime.toLocaleTimeString()}`);
+    context.info(`Filter is ${filter}`);
+
+    const eventRecords = tableClient.listEntities<IEventRecord>({
+        queryOptions:{
+            filter: filter
+        }
+    });
+
+    for await (const eventRecord of eventRecords){
+        eventEntity.sessionId = eventRecord.sessionId;
+    }
+
     const newEntity = await tableClient.createEntity(eventEntity);
 
     return newEntity;
+}
+
+interface IEventRecord{
+    partitionKey:   string;
+    rowKey:         string;
+    timeStamp:      Date;
+    event:          string;
+    sessionId:      string;
 }
 
 /** Add any extra parameteres that start with ex-
