@@ -7,7 +7,7 @@ The Azure function will put data in Azure Storage Data tables `expressAnalyticsU
 
 ## Template Usage
 
-1. Download the Power BI Template [Adobe Express Add-on Telemetry Dashboard](Adobe Express Add-on Telemetry Dashboard.pbit)
+1. Download the Power BI Template `Adobe Express Add-on Telemetry Dashboard.pbit` from this repository folder.
 2. Open it in [Microsoft Power BI Desktop](https://www.microsoft.com/en-us/power-platform/products/power-bi)
 3. Connect the Azure Data Tables  `expressAnalyticsUsers` and `expressAnalyticsEvents` created by your Azure function.
 
