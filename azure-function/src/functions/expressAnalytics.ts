@@ -1,13 +1,15 @@
 /** Express Analytics
  * Copyright (c) 2025 Scherotter Enterprises.
  */
-import { TableClient, TableServiceClient } from "@azure/data-tables";
+import { TableClient, TableInsertEntityHeaders, TableServiceClient } from "@azure/data-tables";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 const { v4: uuidv4 } = require('uuid');
 
 const azureStorageConnectionString = <string>process.env.AZURE_STORAGE_CONNECTION;
 const userTableName = "expressAnalyticsUsers";
 const eventTableName = "expressAnalyticsEvents";
+const pulseEvent = "_pulse";
+const userEvent = "_user";
 
 /** the number of minutes between events to trigger a new session*/
 const sessionInactivityMinutes = 30;
@@ -65,6 +67,24 @@ interface IAnalyticsUserEntry{
     pixelDepth: number;
 };
 
+/** Event Record */
+interface IEventRecord{
+    /** the partiton key <Add-on name>|<User id> */
+    partitionKey:   string;
+
+    /** the row key <Event name>|<GUID>*/
+    rowKey:         string;
+    
+    /** the timestamp */
+    timeStamp:      Date;
+
+    /** the event name */
+    event:          string;
+
+    /** the session Id */
+    sessionId?:      string;
+}
+
 /** the Express Analytics endpoint processing */
 export async function expressAnalytics(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http trigger for Express Analytics url "${request.url}"`);
@@ -74,7 +94,7 @@ export async function expressAnalytics(request: HttpRequest, context: Invocation
 
         const event = request.query.get("e");
 
-        if (event == "_user"){
+        if (event == userEvent){
             await upsertUserAsync(request.query, context);
         } else{
             await createEventAsync(request.query, context);
@@ -111,6 +131,18 @@ async function createEventAsync(query: URLSearchParams, context: InvocationConte
     if (!name) throw new Error("No n name parameter.");
     if (!userId) throw new Error("No u userId parameter.");
 
+    return await addEventAsync(event, name, userId, query, context);
+}
+
+/** Add an event
+ * @param event the event name
+ * @param name the add-on name
+ * @param userId the user Id
+ * @param query the URL search parameters from the request
+ * @param context the Azure funcitons context
+ * @returns an async promise with the tabe insert entity header
+ */
+async function addEventAsync(event:string, name: string, userId: string, query:URLSearchParams, context:InvocationContext) : Promise<TableInsertEntityHeaders>{
     const tableServiceClient = TableServiceClient.fromConnectionString(azureStorageConnectionString);
 
     await tableServiceClient.createTable(eventTableName);
@@ -142,39 +174,21 @@ async function createEventAsync(query: URLSearchParams, context: InvocationConte
         }
     });
 
-    console.log(`Recordss`);
+    //console.log(`Records`);
 
     for await (const eventRecord of eventRecords){
-        console.log(eventRecord);
+        //console.log(eventRecord);
         if (eventRecord.sessionId){
-            context.info(`Setting new record sessionId to ${eventRecord.sessionId}`);
+            //context.info(`Setting new record sessionId to ${eventRecord.sessionId}`);
             eventEntity.sessionId = eventRecord.sessionId;
         } else{
-            context.info(`${eventRecord.partitionKey} ${eventRecord.rowKey} does not have a sessionId`);            
+            //context.info(`${eventRecord.partitionKey} ${eventRecord.rowKey} does not have a sessionId`);            
         }
     }
 
-    const newEntity = await tableClient.createEntity(eventEntity);
+    const newEntity = await tableClient.createEntity<IEventRecord>(eventEntity);
 
     return newEntity;
-}
-
-/** Event Record */
-interface IEventRecord{
-    /** the partiton key <Add-on name>|<User id> */
-    partitionKey:   string;
-
-    /** the row key <Event name>|<GUID>*/
-    rowKey:         string;
-    
-    /** the timestamp */
-    timeStamp:      Date;
-
-    /** the event name */
-    event:          string;
-
-    /** the session Id */
-    sessionId?:      string;
 }
 
 /** Add any extra parameteres that start with ex-
@@ -253,7 +267,7 @@ async function upsertUserAsync(query: URLSearchParams, context:InvocationContext
     await tableServiceClient.createTable(userTableName);
 
     try {
-        return await updateEntityAsync(entity);
+        await updateEntityAsync(entity);
     } catch (error:any){
         console.log(`User Entity ${entity.partitionKey} ${entity.rowKey} does not exist, creating it.`);
 
@@ -261,6 +275,8 @@ async function upsertUserAsync(query: URLSearchParams, context:InvocationContext
 
         return await tableClient.createEntity<IAnalyticsUserEntry>(entity);
     }
+
+    await addEventAsync(pulseEvent, name, userId, query, context);
 }
 
 /** Update a user entity fields except for the firstUsage field 
