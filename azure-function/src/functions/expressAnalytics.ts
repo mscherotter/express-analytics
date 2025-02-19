@@ -130,7 +130,7 @@ async function createEventAsync(query: URLSearchParams, context: InvocationConte
     sessionTime.setMinutes(sessionTime.getMinutes() - sessionInactivityMinutes);
     const sessionTimeString = sessionTime.toISOString();
     
-    const filter = `partitionKey eq '${eventEntity.partitionKey}' and timeStamp ge datetime'${sessionTimeString}'`;
+    const filter = `PartitionKey eq '${eventEntity.partitionKey}' and Timestamp ge datetime'${sessionTimeString}'`;
 
     context.info(`Current time is ${new Date().toLocaleTimeString()}`);
     context.info(`Session time is ${sessionTime.toLocaleTimeString()}`);
@@ -142,9 +142,15 @@ async function createEventAsync(query: URLSearchParams, context: InvocationConte
         }
     });
 
+    console.log(`Recordss`);
+
     for await (const eventRecord of eventRecords){
+        console.log(eventRecord);
         if (eventRecord.sessionId){
+            context.info(`Setting new record sessionId to ${eventRecord.sessionId}`);
             eventEntity.sessionId = eventRecord.sessionId;
+        } else{
+            context.info(`${eventRecord.partitionKey} ${eventRecord.rowKey} does not have a sessionId`);            
         }
     }
 
