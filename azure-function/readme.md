@@ -42,5 +42,8 @@ A table of users of the add-ons. There is a single entry per user, so for a user
 
 A table of events of the add-ons
 
-- partitionKey: {the name of the add-on}|{the Adobe Express user Id}
-- rowKey:       {the name of the event}|{a unique Id}
+- **partitionKey** {the name of the add-on}|{the Adobe Express user Id}
+- **rowKey**       {the name of the event}|{a unique Id}
+- **timeStamp**    timestamp added by Azure on creation
+- **name**         the name of the event
+- **sessionId**    a GUID representing a session (events with less than 30 minutes delay between each one)

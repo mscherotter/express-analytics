@@ -130,7 +130,7 @@ async function createEventAsync(query: URLSearchParams, context: InvocationConte
     sessionTime.setMinutes(sessionTime.getMinutes() - sessionInactivityMinutes);
     const sessionTimeString = sessionTime.toISOString();
     
-    const filter = `partitionKey eq '${eventEntity.partitionKey}' and timeStamp ge ${sessionTimeString}`;
+    const filter = `partitionKey eq '${eventEntity.partitionKey}' and timeStamp ge datetime'${sessionTimeString}'`;
 
     context.info(`Current time is ${new Date().toLocaleTimeString()}`);
     context.info(`Session time is ${sessionTime.toLocaleTimeString()}`);
