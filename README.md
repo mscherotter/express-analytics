@@ -8,8 +8,9 @@ A package add to an [Adobe Express](https://new.express.adobe.com/) add-on to co
 2. [Telemetry parameters tracked](#telemetry-parameters-tracked)
 3. [Add-on package](#add-on-package)
 4. [Azure function](#azure-function)
-5. [Sample Adobe Express add-on](#sample-adobe-express-add-on)
-6. [Help is available](#help-is-available)
+5. [Telemetry Dashboard](#telemetry-dashboard)
+6. [Sample Adobe Express add-on](#sample-adobe-express-add-on)
+7. [Help is available](#help-is-available)
 
 ## Features
 
