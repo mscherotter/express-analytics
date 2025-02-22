@@ -32,6 +32,7 @@ const endpoint = "https://<your cloud function endpoint with any key in the url>
 */
 const devEndpoint = "https://.....ngrok-free.app/api/expressAnalytics?key=_test";
 
+
 @customElement("add-on-app")
 export class App extends LitElement {
     @property({ type: Object })
@@ -77,7 +78,19 @@ export class App extends LitElement {
         return html` <sp-theme theme="express" color="light" scale="medium">
             <div class="container">
                 <sp-button size="m" @click=${this._handleClick}>Create Rectangle</sp-button>
+                <sp-button size="m" @click=${this._triggerError}>Throw Error</sp-button>
             </div>
         </sp-theme>`;
+    }
+
+    private async _triggerError(){
+        try{
+            const error = new Error("🛑 this is an error message.");
+            error.name="sample";
+
+            throw error;
+        } catch (error:any){
+            await this._analytics.trackErrorAsync(error as Error);
+        }
     }
 }

@@ -87,13 +87,16 @@ export class ExpressAnalytics {
     /** track an event
      * @param eventName: the event name
      * @param extra: extra parameters to record
+     * @returns an async promise with a boolean value indicating whether the tracking
+     *  was successful.
      */
     async trackEventAsync(eventName, extra) {
         try {
             if (!eventName)
                 throw new Error("Express Analytics: eventName cannot be blank");
-            if (eventName == "_user")
-                throw new Error("Express Analytics: Cannot track a user event using trackEventAsync(), use  trackUserAsync() instead.");
+            const reservedNames = ["_user", "_error"];
+            if (reservedNames.includes(eventName))
+                throw new Error(`Express Analytics: Cannot track a ${eventName} event using trackEventAsync(), use trackUserAsync() or trackErrorAsync() instead.`);
             const userId = await this._addOnSDK.app.currentUser.userId();
             const parameters = [
                 `e=${encodeURIComponent(eventName)}`,
@@ -115,7 +118,64 @@ export class ExpressAnalytics {
             return response.ok;
         }
         catch (error) {
-            console.error(`Express Analytics event tracking tracking error: ${error.message}`);
+            console.error(`Express Analytics event tracking event: ${error.message}`);
+            return false;
+        }
+    }
+    /** Track an error
+     * @param error an Error object
+     * @param extra the extra parameters
+     * @returns an ansyc promise with a boolean value indicating whether the tracking was successful
+     * @example
+     * try{
+     * ...
+     * // code that throws an exception
+     * ...
+     * } catch(error:any) {
+     *     await this.analytics.trackErrorAsync(error as Error);
+     * }
+     */
+    async trackErrorAsync(error, extra) {
+        try {
+            const userId = await this._addOnSDK.app.currentUser.userId();
+            const parameters = [
+                `e=_error`,
+                `en=${encodeURIComponent(error.name)}`,
+                `m=${encodeURIComponent(error.message)}`,
+                `n=${encodeURIComponent(this._addOnName)}`,
+                `u=${userId}`
+            ];
+            if (error.cause && typeof error.cause === 'string') {
+                parameters.push(`c=${encodeURIComponent(error.cause)}`);
+            }
+            if (extra) {
+                // add extra parameters
+                Object.entries(extra).forEach(ExpressAnalytics.addExtra, parameters);
+            }
+            const url = this.getUrl(parameters);
+            let response;
+            if (error.stack) {
+                response = await fetch(url, {
+                    method: "post",
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    },
+                    body: error.stack
+                });
+            }
+            else {
+                response = await fetch(url, {
+                    method: "post"
+                });
+            }
+            if (!response.ok) {
+                const text = await response.text();
+                console.error(`Express Analytics error tracking error: ${text}.`);
+            }
+            return response.ok;
+        }
+        catch (error) {
+            console.error(`Express Analytics event tracking error: ${error.message}`);
             return false;
         }
     }

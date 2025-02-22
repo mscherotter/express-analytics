@@ -10,6 +10,7 @@ const userTableName = "expressAnalyticsUsers";
 const eventTableName = "expressAnalyticsEvents";
 const pulseEvent = "_pulse";
 const userEvent = "_user";
+const errorEvent = "_error";
 
 /** the number of minutes between events to trigger a new session*/
 const sessionInactivityMinutes = 30;
@@ -94,10 +95,19 @@ export async function expressAnalytics(request: HttpRequest, context: Invocation
 
         const event = request.query.get("e");
 
-        if (event == userEvent){
-            await upsertUserAsync(request.query, context);
-        } else{
-            await createEventAsync(request.query, context);
+        switch (event){
+            case userEvent:
+                await upsertUserAsync(request.query, context);
+                break;
+            case errorEvent:
+                const stack = await request.text();
+                
+                await createErrorEventAsync(request.query, context, {stack: stack});
+                break;
+            default:
+                await createEventAsync(request.query, context);
+                break;
+            
         }
 
         return { body: `Processed` };
@@ -121,6 +131,8 @@ app.http('expressAnalytics', {
 
 /** Create an event entity
  * @param query the HTTP query
+ * @param context the Azure function invocation context
+ * @returns an async promise
  */
 async function createEventAsync(query: URLSearchParams, context: InvocationContext){
     const name = decodeURIComponent(query.get("n") as string);
@@ -134,15 +146,32 @@ async function createEventAsync(query: URLSearchParams, context: InvocationConte
     return await addEventAsync(event, name, userId, query, context);
 }
 
+/** Create an error event entity
+ * @param query the HTTP query
+ * @param context the Azure funciton invocation context
+ * @param extra extra parameters
+ * @returns an async promise
+ */
+async function createErrorEventAsync(query: URLSearchParams, context: InvocationContext, extra?: Record<string,string>){
+    const name = decodeURIComponent(query.get("n") as string);
+    const userId = query.get("u");
+
+    if (!name) throw new Error("No n name parameter.");
+    if (!userId) throw new Error("No u userId parameter.");
+
+    return await addEventAsync("_error", name, userId, query, context, extra);
+}
+
 /** Add an event
  * @param event the event name
  * @param name the add-on name
  * @param userId the user Id
  * @param query the URL search parameters from the request
  * @param context the Azure funcitons context
+ * @param extra extra parameters
  * @returns an async promise with the tabe insert entity header
  */
-async function addEventAsync(event:string, name: string, userId: string, query:URLSearchParams, context:InvocationContext) : Promise<TableInsertEntityHeaders>{
+async function addEventAsync(event:string, name: string, userId: string, query:URLSearchParams, context:InvocationContext, extra?: Record<string, string>) : Promise<TableInsertEntityHeaders>{
     const tableServiceClient = TableServiceClient.fromConnectionString(azureStorageConnectionString);
 
     await tableServiceClient.createTable(eventTableName);
@@ -153,6 +182,24 @@ async function addEventAsync(event:string, name: string, userId: string, query:U
         event: event,
         sessionId: uuidv4()
     } as any;
+
+    if (event == errorEvent){
+        const anyEntity = eventEntity as any;
+        anyEntity["name"] = decodeURIComponent(query.get("en") as string);
+        
+        anyEntity["message"] = decodeURIComponent(query.get("m") as string);
+
+        if (query.has("c")){
+            anyEntity["cause"] = decodeURIComponent(query.get("c") as string);
+        }
+    }
+
+    if (extra){
+        Object.entries(extra).forEach((value: [string,string])=>{
+            const anyEntity = eventEntity as any;
+            anyEntity[value[0]] = decodeURIComponent(value[1]);
+        })
+    }
 
     query.forEach(addExtraParameters, eventEntity);
 
@@ -209,6 +256,7 @@ function addExtraParameters(this: any, value:string, name:string) {
 
 /** Upsert a user entity
  * @param the HTTP query
+ * @param context the Azure function invocation context
  * @returns an async promise
  */
 async function upsertUserAsync(query: URLSearchParams, context:InvocationContext){
@@ -281,6 +329,7 @@ async function upsertUserAsync(query: URLSearchParams, context:InvocationContext
 
 /** Update a user entity fields except for the firstUsage field 
  * @param entity the new entity
+ * @returns an async promise
 */
 async function  updateEntityAsync(entity: IAnalyticsUserEntry) {
     const tableClient = TableClient.fromConnectionString(azureStorageConnectionString, userTableName);

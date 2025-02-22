@@ -31,4 +31,19 @@ Analytics for Adobe Express Add-ons
         width: pageWidth, 
         height: pageHeight});
 
+### Tracking an error (multiple times per session)
+
+    import { ExpressAnalytics} from "express-addon-analytics/ExpressAnalytics";
+    ....
+
+    // this.addOnUISdk has already been initialized
+
+     try {
+       ...
+       // code that throws an exception
+       ...
+    } catch(error:any) {
+        await this.analytics.trackErrorAsync(error as Error);
+    }
+
     

@@ -6,4 +6,8 @@ export const style = css`
         display: flex;
         flex-direction: column;
     }
+
+    sp-button{
+        margin-bottom:1rem;
+    }
 `;

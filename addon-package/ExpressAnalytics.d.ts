@@ -75,6 +75,20 @@ export declare class ExpressAnalytics {
      * @param extra: extra parameters to record
      */
     trackEventAsync(eventName: string, extra?: Record<string, string>): Promise<boolean>;
+    /** Track an error
+     * @param error an Error object
+     * @param extra the extra parameters
+     * @returns an ansyc promise with a boolean value indicating whether the tracking was successful
+     * @example
+     * try{
+     * ...
+     * // code that throws an exception
+     * ...
+     * } catch(error:any) {
+     *     await this.analytics.trackErrorAsync(error as Error);
+     * }
+     */
+    trackErrorAsync(error: Error, extra?: Record<string, string>): Promise<boolean>;
     private static get isDevelopment();
     private static addExtra;
     private static onPulseAsync;
