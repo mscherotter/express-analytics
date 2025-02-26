@@ -57,7 +57,7 @@ export class ExpressAnalytics{
     private _endpoint: string;
     private _devEndpoint: string;
     private _addOnName: string;
-    private static _pulseStarted = false;
+    private _timeout?: NodeJS.Timeout;
 
     /** The pulse interval in milliseconds (default is 15 seconds) */
     static PulseInterval = 15000;
@@ -79,9 +79,18 @@ export class ExpressAnalytics{
         this._endpoint = endpoint;
         this._devEndpoint = devEndpoint ? devEndpoint : endpoint;
 
-        if (!ExpressAnalytics._pulseStarted){
-            setInterval(ExpressAnalytics.onPulseAsync, ExpressAnalytics.PulseInterval, this);
-            ExpressAnalytics._pulseStarted = true;
+        if (!this._timeout){
+            this._timeout = setInterval(ExpressAnalytics.onPulseAsync, ExpressAnalytics.PulseInterval, this);
+        }
+    }
+
+    /** stop the pulse interval */
+    dispose(){
+        if (this._timeout){
+            
+            clearInterval(this._timeout);
+
+            this._timeout = undefined;
         }
     }
 

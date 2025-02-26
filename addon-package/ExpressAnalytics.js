@@ -3,7 +3,6 @@
  */
 /** Adobe Express Add-on Analytics */
 export class ExpressAnalytics {
-    static { this._pulseStarted = false; }
     /** The pulse interval in milliseconds (default is 15 seconds) */
     static { this.PulseInterval = 15000; }
     /** Create an analytics object
@@ -25,9 +24,15 @@ export class ExpressAnalytics {
         this._addOnName = encodeURIComponent(addOnSDK.instance.manifest.name);
         this._endpoint = endpoint;
         this._devEndpoint = devEndpoint ? devEndpoint : endpoint;
-        if (!ExpressAnalytics._pulseStarted) {
-            setInterval(ExpressAnalytics.onPulseAsync, ExpressAnalytics.PulseInterval, this);
-            ExpressAnalytics._pulseStarted = true;
+        if (!this._timeout) {
+            this._timeout = setInterval(ExpressAnalytics.onPulseAsync, ExpressAnalytics.PulseInterval, this);
+        }
+    }
+    /** stop the pulse interval */
+    dispose() {
+        if (this._timeout) {
+            clearInterval(this._timeout);
+            this._timeout = undefined;
         }
     }
     /** track a user

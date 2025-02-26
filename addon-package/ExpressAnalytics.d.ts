@@ -55,7 +55,7 @@ export declare class ExpressAnalytics {
     private _endpoint;
     private _devEndpoint;
     private _addOnName;
-    private static _pulseStarted;
+    private _timeout?;
     /** The pulse interval in milliseconds (default is 15 seconds) */
     static PulseInterval: number;
     /** Create an analytics object
@@ -65,6 +65,8 @@ export declare class ExpressAnalytics {
      * endpoint will be used when in development
      */
     constructor(addOnSDK: IAdobeExpressAddOnSDKAPI, endpoint: string, devEndpoint?: string);
+    /** stop the pulse interval */
+    dispose(): void;
     /** track a user
      * @para extra extra fields to add
      * @returns an async promise with a boolean value indicating whether the tracking POST succeeded
@@ -73,6 +75,8 @@ export declare class ExpressAnalytics {
     /** track an event
      * @param eventName: the event name
      * @param extra: extra parameters to record
+     * @returns an async promise with a boolean value indicating whether the tracking
+     *  was successful.
      */
     trackEventAsync(eventName: string, extra?: Record<string, string>): Promise<boolean>;
     /** Track an error

@@ -19,6 +19,8 @@ Analytics for Adobe Express Add-ons
 
     await analytics.trackUserAsync();
 
+You can call this multiple times during session to add additional user metrics in the extra parameter.
+
 ### Tracking an event (multiple times per session)
 
     import { ExpressAnalytics} from "express-addon-analytics/ExpressAnalytics";
@@ -46,4 +48,9 @@ Analytics for Adobe Express Add-ons
         await this.analytics.trackErrorAsync(error as Error);
     }
 
+### Stopping session tracking
+    
+A pulse event will be sent every 15 seconds. The interval can be changed before the ExpressAnalytics object is created with `ExpressAnalytics.PulseInterval = 20000;` to change it to 20 seconds, for example. This pulse helps determine session duration as there is no "closed" event for the add-on. You can always stop it with this code.
+
+    this.analytis.dispose();
     
