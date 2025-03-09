@@ -3,6 +3,7 @@
  */
 import { TableClient, TableInsertEntityHeaders, TableServiceClient } from "@azure/data-tables";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { v4: uuidv4 } = require('uuid');
 
 const azureStorageConnectionString = <string>process.env.AZURE_STORAGE_CONNECTION;
@@ -77,7 +78,7 @@ interface IEventRecord{
     rowKey:         string;
     
     /** the timestamp */
-    timeStamp:      Date;
+    timeStamp?:      Date;
 
     /** the event name */
     event:          string;
@@ -100,9 +101,11 @@ export async function expressAnalytics(request: HttpRequest, context: Invocation
                 await upsertUserAsync(request.query, context);
                 break;
             case errorEvent:
-                const stack = await request.text();
-                
-                await createErrorEventAsync(request.query, context, {stack: stack});
+                {
+                    const stack = await request.text();
+                    
+                    await createErrorEventAsync(request.query, context, {stack: stack});
+                }
                 break;
             default:
                 await createEventAsync(request.query, context);
@@ -111,13 +114,14 @@ export async function expressAnalytics(request: HttpRequest, context: Invocation
         }
 
         return { body: `Processed` };
-    } catch (error:any){
+    } catch (error:unknown){
+        const err = error as Error;
         
-        context.error(error);
+        context.error(err);
 
         return { 
             status: 401,
-            body: error.message
+            body: err.message
         };
     }
 };
@@ -176,15 +180,15 @@ async function addEventAsync(event:string, name: string, userId: string, query:U
 
     await tableServiceClient.createTable(eventTableName);
 
-    let eventEntity:IEventRecord = {
+    const eventEntity:IEventRecord = {
         partitionKey: `${name}|${userId}`,
         rowKey: `${event}|${uuidv4()}`,
         event: event,
         sessionId: uuidv4()
-    } as any;
+    };
 
     if (event == errorEvent){
-        const anyEntity = eventEntity as any;
+        const anyEntity = eventEntity as unknown as Record<string, string>;
         anyEntity["name"] = decodeURIComponent(query.get("en") as string);
         
         anyEntity["message"] = decodeURIComponent(query.get("m") as string);
@@ -196,7 +200,7 @@ async function addEventAsync(event:string, name: string, userId: string, query:U
 
     if (extra){
         Object.entries(extra).forEach((value: [string,string])=>{
-            const anyEntity = eventEntity as any;
+            const anyEntity = eventEntity as unknown as Record<string, string>;;
             anyEntity[value[0]] = decodeURIComponent(value[1]);
         })
     }
@@ -205,7 +209,7 @@ async function addEventAsync(event:string, name: string, userId: string, query:U
 
     const tableClient = TableClient.fromConnectionString(azureStorageConnectionString, eventTableName);
 
-    let sessionTime = new Date();
+    const sessionTime = new Date();
     sessionTime.setMinutes(sessionTime.getMinutes() - sessionInactivityMinutes);
     const sessionTimeString = sessionTime.toISOString();
     
@@ -243,7 +247,7 @@ async function addEventAsync(event:string, name: string, userId: string, query:U
  * @param value the value
  * @param name the key name
  */
-function addExtraParameters(this: any, value:string, name:string) {
+function addExtraParameters(this: Record<string,string>, value:string, name:string) {
     if (name.startsWith("ex-")){
         const fieldName = decodeURIComponent(name.substring(3));
         const existingFields = ["partitionKey", "rowKey", "timestamp"];
@@ -316,8 +320,10 @@ async function upsertUserAsync(query: URLSearchParams, context:InvocationContext
 
     try {
         await updateEntityAsync(entity);
-    } catch (error:any){
-        console.log(`User Entity ${entity.partitionKey} ${entity.rowKey} does not exist, creating it.`);
+    } catch (error:unknown){
+        const err = error as Error;
+
+        context.log(`User Entity ${entity.partitionKey} ${entity.rowKey} does not exist, creating it (${err.message}).`);
 
         const tableClient = TableClient.fromConnectionString(azureStorageConnectionString, userTableName);
 

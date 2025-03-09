@@ -10,8 +10,6 @@ function start(): void {
     // i.e., to the `App.ts` file of this add-on.
     const sandboxApi: DocumentSandboxApi = {
         createRectangle: () => {
-            const line = editor.createLine();
-            
             const rectangle = editor.createRectangle();
             
             // Define rectangle dimensions.

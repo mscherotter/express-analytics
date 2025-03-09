@@ -1,10 +1,11 @@
 {
   "name": "server",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
+    "lint": "npx eslint src",
+    "build": "npm run lint && tsc",
+    "watch": "npm run lint && tsc -w",
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
     "start": "func start",
@@ -17,9 +18,12 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.22.0",
     "@types/node": "^20.17.24",
+    "eslint": "^9.22.0",
     "rimraf": "^5.0.10",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "typescript-eslint": "^8.26.0"
   },
   "main": "dist/src/{index.js,functions/*.js}"
 }

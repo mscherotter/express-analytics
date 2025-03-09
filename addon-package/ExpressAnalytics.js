@@ -85,7 +85,8 @@ export class ExpressAnalytics {
             return response.ok;
         }
         catch (error) {
-            console.error(`Express Analytics user tracking error: ${error.message}`);
+            const err = error;
+            console.error(`Express Analytics user tracking error: ${err.message}`);
             return false;
         }
     }
@@ -123,7 +124,8 @@ export class ExpressAnalytics {
             return response.ok;
         }
         catch (error) {
-            console.error(`Express Analytics event tracking event: ${error.message}`);
+            const err = error;
+            console.error(`Express Analytics event tracking event: ${err.message}`);
             return false;
         }
     }
@@ -180,7 +182,8 @@ export class ExpressAnalytics {
             return response.ok;
         }
         catch (error) {
-            console.error(`Express Analytics event tracking error: ${error.message}`);
+            const err = error;
+            console.error(`Express Analytics event tracking error: ${err.message}`);
             return false;
         }
     }
@@ -199,7 +202,6 @@ export class ExpressAnalytics {
         if (ExpressAnalytics.isDevelopment) {
             url = this._devEndpoint;
         }
-        url;
         if (url.includes("?")) {
             return `${url}&${parameters.join("&")}`;
         }

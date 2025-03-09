@@ -89,8 +89,9 @@ export class App extends LitElement {
             error.name="sample";
 
             throw error;
-        } catch (error:any){
-            await this._analytics.trackErrorAsync(error as Error);
+        } catch (error:unknown){
+            const err = error as Error;
+            await this._analytics.trackErrorAsync(err);
         }
     }
 }

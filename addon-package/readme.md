@@ -44,12 +44,13 @@ You can call this multiple times during session to add additional user metrics i
        ...
        // code that throws an exception
        ...
-    } catch(error:any) {
-        await this.analytics.trackErrorAsync(error as Error);
+    } catch (error:unknown){
+        const err = error as Error;
+        await this._analytics.trackErrorAsync(err);
     }
 
 ### Stopping session tracking
-    
+
 A pulse event will be sent every 15 seconds. The interval can be changed before the ExpressAnalytics object is created with `ExpressAnalytics.PulseInterval = 20000;` to change it to 20 seconds, for example. This pulse helps determine session duration as there is no "closed" event for the add-on. You can always stop it with this code.
 
     this.analytis.dispose();
