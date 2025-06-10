@@ -56,6 +56,8 @@ export declare class ExpressAnalytics {
     private _devEndpoint;
     private _addOnName;
     private _timeout?;
+    /** whether to log errors to the browser console */
+    static LogErrors: boolean;
     /** The pulse interval in milliseconds (default is 15 seconds) */
     static PulseInterval: number;
     /** Create an analytics object

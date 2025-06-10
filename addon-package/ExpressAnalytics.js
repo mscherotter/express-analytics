@@ -3,6 +3,8 @@
  */
 /** Adobe Express Add-on Analytics */
 export class ExpressAnalytics {
+    /** whether to log errors to the browser console */
+    static { this.LogErrors = false; }
     /** The pulse interval in milliseconds (default is 15 seconds) */
     static { this.PulseInterval = 15000; }
     /** Create an analytics object
@@ -79,14 +81,18 @@ export class ExpressAnalytics {
                 //console.info(`Express Analytics user tracked: ${textResponse}`);
             }
             else {
-                const textResponse = await response.text();
-                console.error(`Express Analytics user tracking error: ${textResponse}`);
+                if (ExpressAnalytics.LogErrors) {
+                    const textResponse = await response.text();
+                    console.error(`Express Analytics user tracking error: ${textResponse}`);
+                }
             }
             return response.ok;
         }
         catch (error) {
-            const err = error;
-            console.error(`Express Analytics user tracking error: ${err.message}`);
+            if (ExpressAnalytics.LogErrors) {
+                const err = error;
+                console.error(`Express Analytics user tracking error: ${err.message}`);
+            }
             return false;
         }
     }
@@ -118,14 +124,18 @@ export class ExpressAnalytics {
                 method: "post"
             });
             if (!response.ok) {
-                const text = await response.text();
-                console.error(`Express Analytics error tracking event ${eventName}: ${text}.`);
+                if (ExpressAnalytics.LogErrors) {
+                    const text = await response.text();
+                    console.error(`Express Analytics error tracking event ${eventName}: ${text}.`);
+                }
             }
             return response.ok;
         }
         catch (error) {
-            const err = error;
-            console.error(`Express Analytics event tracking event: ${err.message}`);
+            if (ExpressAnalytics.LogErrors) {
+                const err = error;
+                console.error(`Express Analytics event tracking event: ${err.message}`);
+            }
             return false;
         }
     }
@@ -176,14 +186,18 @@ export class ExpressAnalytics {
                 });
             }
             if (!response.ok) {
-                const text = await response.text();
-                console.error(`Express Analytics error tracking error: ${text}.`);
+                if (ExpressAnalytics.LogErrors) {
+                    const text = await response.text();
+                    console.error(`Express Analytics error tracking error: ${text}.`);
+                }
             }
             return response.ok;
         }
         catch (error) {
-            const err = error;
-            console.error(`Express Analytics event tracking error: ${err.message}`);
+            if (ExpressAnalytics.LogErrors) {
+                const err = error;
+                console.error(`Express Analytics event tracking error: ${err.message}`);
+            }
             return false;
         }
     }

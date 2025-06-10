@@ -57,7 +57,11 @@ export class ExpressAnalytics{
     private _endpoint: string;
     private _devEndpoint: string;
     private _addOnName: string;
-    private _timeout?: NodeJS.Timeout;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private _timeout?: any;
+
+    /** whether to log errors to the browser console */
+    static LogErrors = false;
 
     /** The pulse interval in milliseconds (default is 15 seconds) */
     static PulseInterval = 15000;
@@ -145,14 +149,18 @@ export class ExpressAnalytics{
                 //const textResponse = await response.text();
                 //console.info(`Express Analytics user tracked: ${textResponse}`);
             } else {
-                const textResponse = await response.text();
-                console.error(`Express Analytics user tracking error: ${textResponse}`);
+                if (ExpressAnalytics.LogErrors){
+                    const textResponse = await response.text();
+                    console.error(`Express Analytics user tracking error: ${textResponse}`);
+                }
             } 
 
             return response.ok;
         } catch(error:unknown){
-            const err = error as Error;
-            console.error(`Express Analytics user tracking error: ${err.message}`);
+            if (ExpressAnalytics.LogErrors){
+                const err = error as Error;
+                console.error(`Express Analytics user tracking error: ${err.message}`);
+            }
             return false;
         }
     }
@@ -191,15 +199,20 @@ export class ExpressAnalytics{
             });
 
             if (!response.ok){
-                const text = await response.text();
-                console.error(`Express Analytics error tracking event ${eventName}: ${text}.`);
+                if (ExpressAnalytics.LogErrors){
+                    const text = await response.text();
+                    console.error(`Express Analytics error tracking event ${eventName}: ${text}.`);
+                }
             }
 
             return response.ok;
         } catch (error: unknown){
-            const err = error as Error;
+            if (ExpressAnalytics.LogErrors){
+                const err = error as Error;
 
-            console.error(`Express Analytics event tracking event: ${err.message}`);
+                console.error(`Express Analytics event tracking event: ${err.message}`);
+            }
+
             return false;
         }
     }
@@ -257,15 +270,19 @@ export class ExpressAnalytics{
             }
             
             if (!response.ok){
-                const text = await response.text();
-                console.error(`Express Analytics error tracking error: ${text}.`);
+                if (ExpressAnalytics.LogErrors){
+                    const text = await response.text();
+                    console.error(`Express Analytics error tracking error: ${text}.`);
+                }
             }
 
             return response.ok;
         } catch (error: unknown){
-            const err = error as Error;
+            if (ExpressAnalytics.LogErrors){
+                const err = error as Error;
 
-            console.error(`Express Analytics event tracking error: ${err.message}`);
+                console.error(`Express Analytics event tracking error: ${err.message}`);
+            }
             return false;
         }
     }
