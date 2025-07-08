@@ -54,4 +54,11 @@ You can call this multiple times during session to add additional user metrics i
 A pulse event will be sent every 15 seconds. The interval can be changed before the ExpressAnalytics object is created with `ExpressAnalytics.PulseInterval = 20000;` to change it to 20 seconds, for example. This pulse helps determine session duration as there is no "closed" event for the add-on. You can always stop it with this code.
 
     this.analytis.dispose();
+
+### Logging Browser Errors
+
+By default, errors from Express Analytics will not be logged to the browser 
+console. For debugging you can set the LogErrors property to true.
+
+    ExpressAnalytics.LogErrors = true;
     
