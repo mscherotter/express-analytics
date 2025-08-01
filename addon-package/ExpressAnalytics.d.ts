@@ -23,6 +23,10 @@ export interface IAdobeExpressAddOnSDKAPI {
              * @returns an async promise with a boolean value
              */
             isPremiumUser(): Promise<boolean>;
+            /** is the current user is anonymous
+             * @returns an async promise with a boolean value
+             */
+            isAnonymousUser(): Promise<boolean>;
         };
         /** the developer flags */
         devFlags: {
@@ -70,7 +74,7 @@ export declare class ExpressAnalytics {
     /** stop the pulse interval */
     dispose(): void;
     /** track a user
-     * @para extra extra fields to add
+     * @param extra extra fields to add
      * @returns an async promise with a boolean value indicating whether the tracking POST succeeded
      */
     trackUserAsync(extra?: Record<string, string>): Promise<boolean>;

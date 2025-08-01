@@ -1,6 +1,8 @@
 /** Express Analytics
  * Copyright (c) 2025 Scherotter Enterprises
  */
+/** User ID for anonymous users */
+const AnonymousId = "_anonymous";
 /** Adobe Express Add-on Analytics */
 export class ExpressAnalytics {
     /** whether to log errors to the browser console */
@@ -38,17 +40,19 @@ export class ExpressAnalytics {
         }
     }
     /** track a user
-     * @para extra extra fields to add
+     * @param extra extra fields to add
      * @returns an async promise with a boolean value indicating whether the tracking POST succeeded
      */
     async trackUserAsync(extra) {
         try {
             const userId = await this._addOnSDK.app.currentUser.userId();
             const isPremiumUser = await this._addOnSDK.app.currentUser.isPremiumUser();
+            const isAnonymousUser = await this._addOnSDK.app.currentUser.isAnonymousUser();
             const platform = await this._addOnSDK.app.getCurrentPlatform();
             const screen = window.screen;
             const parameters = [
                 `a=${this._addOnSDK.apiVersion}`,
+                `an=${isAnonymousUser}`,
                 `c=${screen.colorDepth}`,
                 `d=${platform.deviceClass}`,
                 `e=_user`,
@@ -61,7 +65,7 @@ export class ExpressAnalytics {
                 `pd=${screen.pixelDepth}`,
                 `pl=${platform.platform}`,
                 `t=${this._addOnSDK.app.ui.theme}`,
-                `u=${userId}`,
+                `u=${userId || AnonymousId}`,
                 `v=${this._addOnSDK.instance.manifest.version}`,
                 `w=${screen.width}`
             ];
@@ -113,7 +117,7 @@ export class ExpressAnalytics {
             const parameters = [
                 `e=${encodeURIComponent(eventName)}`,
                 `n=${encodeURIComponent(this._addOnName)}`,
-                `u=${userId}`
+                `u=${userId || AnonymousId}`
             ];
             if (extra) {
                 // add extra parameters
@@ -160,7 +164,7 @@ export class ExpressAnalytics {
                 `en=${encodeURIComponent(error.name)}`,
                 `m=${encodeURIComponent(error.message)}`,
                 `n=${encodeURIComponent(this._addOnName)}`,
-                `u=${userId}`
+                `u=${userId || AnonymousId}`
             ];
             if (error.cause && typeof error.cause === 'string') {
                 parameters.push(`c=${encodeURIComponent(error.cause)}`);

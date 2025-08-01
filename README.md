@@ -21,12 +21,13 @@ A package add to an [Adobe Express](https://new.express.adobe.com/) add-on to co
 ## Telemetry parameters tracked
 
 - a Adobe Express API Version
+- an Anonymous user (true or false)
 - c Screen color depth
 - d Platform device class
 - e Event (user or event name specified in `trackEventAsync()`)
 - f UI Format
 - h Screen height
-- i In-app purchases allowed
+- i In-app purchases allowed (true or false)
 - l UI Locale
 - n Add-on name
 - p Is the user a premium user
@@ -95,3 +96,7 @@ See this [quickstart](https://developer.adobe.com/express/add-ons/docs/guides/ge
 - Microsoft Power BI dashboard development
 
 Please reach out today if you need help.
+
+## Revision History
+
+- 2025-08-01 Added an parameter to track anonymous users

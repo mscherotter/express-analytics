@@ -67,6 +67,8 @@ interface IAnalyticsUserEntry{
 
     /** Screen Pixel depth */
     pixelDepth: number;
+
+    isAnonymousUser: boolean;
 };
 
 /** Event Record */
@@ -265,6 +267,7 @@ function addExtraParameters(this: Record<string,string>, value:string, name:stri
  */
 async function upsertUserAsync(query: URLSearchParams, context:InvocationContext){
     const apiVersion = query.get("a") as string;
+    const isAnonymous = query.get("an") as string;
     const colorDepth = query.get("c") as string;
     const deviceClass = query.get("d") as string;
     const event = query.get("e");
@@ -302,7 +305,8 @@ async function upsertUserAsync(query: URLSearchParams, context:InvocationContext
         apiVersion: apiVersion,
         firstUsage: new Date(),
         colorDepth: parseInt(colorDepth),
-        pixelDepth: parseInt(pixelDepth)
+        pixelDepth: parseInt(pixelDepth),
+        isAnonymousUser: isAnonymous == "true"
     };
 
     if (simulateFreeUser){
