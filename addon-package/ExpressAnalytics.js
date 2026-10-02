@@ -3,6 +3,58 @@
  */
 /** User ID for anonymous users */
 const AnonymousId = "_anonymous";
+// /** Interface from Adobe Express addon SDK "@types/adobe__ccweb-add-on-sdk": "^1.3.0", */
+// export interface IAdobeExpressPlatform{
+//     deviceClass: string;
+//     inAppPurchaseAllowed: boolean;
+//     platform: string;
+// }
+// /** Interface from Adobe Express addon SDK "@types/adobe__ccweb-add-on-sdk": "^1.3.0", */
+// export interface IAdobeExpressAddOnSDKAPI{
+//     /** the API version */
+//     apiVersion:string,
+//     /** the app */
+//     app: {
+//         /** the current user */
+//         currentUser: {
+//             /** the User Id
+//              * @returns an async promise with a string
+//              */
+//             userId(): Promise<string>,
+//             /** is the user premium
+//              * @returns an async promise with a boolean value
+//              */
+//             isPremiumUser() : Promise<boolean>,
+//             /** is the current user is anonymous
+//              * @returns an async promise with a boolean value
+//              */
+//             isAnonymousUser(): Promise<boolean>
+//         },
+//         /** the developer flags */
+//         devFlags : {
+//             /** True to simulated a free user */
+//             simulateFreeUser: boolean
+//         },
+//         /** Gets the current platform
+//          * @returns an async promise with the Adobe Express Platform
+//          */
+//         getCurrentPlatform() : Promise<IAdobeExpressPlatform>,
+//         /** The user interface */
+//         ui:{
+//             /** the format */
+//             format:string,
+//             /** the locale */
+//             locale:string,
+//             /** the theme name */
+//             theme: string
+//         }
+//     },
+//     /** The add-on instance */
+//     instance: {
+//         /** The add-on manifest */
+//         manifest: Record<string, unknown>
+//     }
+// }
 /** Adobe Express Add-on Analytics */
 export class ExpressAnalytics {
     /** whether to log errors to the browser console */
@@ -45,7 +97,7 @@ export class ExpressAnalytics {
      */
     async trackUserAsync(extra) {
         try {
-            const userId = await this._addOnSDK.app.currentUser.userId();
+            const userId = (await this._addOnSDK.app.currentUser.identity()).userId;
             const isPremiumUser = await this._addOnSDK.app.currentUser.isPremiumUser();
             const isAnonymousUser = await this._addOnSDK.app.currentUser.isAnonymousUser();
             const platform = await this._addOnSDK.app.getCurrentPlatform();
@@ -113,7 +165,7 @@ export class ExpressAnalytics {
             const reservedNames = ["_user", "_error"];
             if (reservedNames.includes(eventName))
                 throw new Error(`Express Analytics: Cannot track a ${eventName} event using trackEventAsync(), use trackUserAsync() or trackErrorAsync() instead.`);
-            const userId = await this._addOnSDK.app.currentUser.userId();
+            const userId = (await this._addOnSDK.app.currentUser.identity()).userId;
             const parameters = [
                 `e=${encodeURIComponent(eventName)}`,
                 `n=${encodeURIComponent(this._addOnName)}`,
@@ -158,7 +210,7 @@ export class ExpressAnalytics {
      */
     async trackErrorAsync(error, extra) {
         try {
-            const userId = await this._addOnSDK.app.currentUser.userId();
+            const userId = (await this._addOnSDK.app.currentUser.identity()).userId;
             const parameters = [
                 `e=_error`,
                 `en=${encodeURIComponent(error.name)}`,

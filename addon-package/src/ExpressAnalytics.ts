@@ -2,66 +2,68 @@
  * Copyright (c) 2025 Scherotter Enterprises
  */
 
+import { AddOnSDKAPI } from "https://new.express.adobe.com/static/add-on-sdk/sdk.js";
+
 /** User ID for anonymous users */
 const AnonymousId = "_anonymous";
 
-/** Interface from Adobe Express addon SDK "@types/adobe__ccweb-add-on-sdk": "^1.3.0", */
-export interface IAdobeExpressPlatform{
-    deviceClass: string;
-    inAppPurchaseAllowed: boolean;
-    platform: string;
-}
-/** Interface from Adobe Express addon SDK "@types/adobe__ccweb-add-on-sdk": "^1.3.0", */
-export interface IAdobeExpressAddOnSDKAPI{
-    /** the API version */
-    apiVersion:string,
-    /** the app */
-    app: {
-        /** the current user */
-        currentUser: {
-            /** the User Id
-             * @returns an async promise with a string
-             */
-            userId(): Promise<string>,
-            /** is the user premium
-             * @returns an async promise with a boolean value
-             */
-            isPremiumUser() : Promise<boolean>,
+// /** Interface from Adobe Express addon SDK "@types/adobe__ccweb-add-on-sdk": "^1.3.0", */
+// export interface IAdobeExpressPlatform{
+//     deviceClass: string;
+//     inAppPurchaseAllowed: boolean;
+//     platform: string;
+// }
+// /** Interface from Adobe Express addon SDK "@types/adobe__ccweb-add-on-sdk": "^1.3.0", */
+// export interface IAdobeExpressAddOnSDKAPI{
+//     /** the API version */
+//     apiVersion:string,
+//     /** the app */
+//     app: {
+//         /** the current user */
+//         currentUser: {
+//             /** the User Id
+//              * @returns an async promise with a string
+//              */
+//             userId(): Promise<string>,
+//             /** is the user premium
+//              * @returns an async promise with a boolean value
+//              */
+//             isPremiumUser() : Promise<boolean>,
 
-            /** is the current user is anonymous
-             * @returns an async promise with a boolean value
-             */
-            isAnonymousUser(): Promise<boolean>
-        },
-        /** the developer flags */
-        devFlags : {
-            /** True to simulated a free user */
-            simulateFreeUser: boolean
-        },
-        /** Gets the current platform
-         * @returns an async promise with the Adobe Express Platform
-         */
-        getCurrentPlatform() : Promise<IAdobeExpressPlatform>,
-        /** The user interface */
-        ui:{
-            /** the format */
-            format:string,
-            /** the locale */
-            locale:string,
-            /** the theme name */
-            theme: string
-        }
-    },
-    /** The add-on instance */
-    instance: {
-        /** The add-on manifest */
-        manifest: Record<string, unknown>
-    }
-}
+//             /** is the current user is anonymous
+//              * @returns an async promise with a boolean value
+//              */
+//             isAnonymousUser(): Promise<boolean>
+//         },
+//         /** the developer flags */
+//         devFlags : {
+//             /** True to simulated a free user */
+//             simulateFreeUser: boolean
+//         },
+//         /** Gets the current platform
+//          * @returns an async promise with the Adobe Express Platform
+//          */
+//         getCurrentPlatform() : Promise<IAdobeExpressPlatform>,
+//         /** The user interface */
+//         ui:{
+//             /** the format */
+//             format:string,
+//             /** the locale */
+//             locale:string,
+//             /** the theme name */
+//             theme: string
+//         }
+//     },
+//     /** The add-on instance */
+//     instance: {
+//         /** The add-on manifest */
+//         manifest: Record<string, unknown>
+//     }
+// }
 
 /** Adobe Express Add-on Analytics */
 export class ExpressAnalytics{
-    private _addOnSDK: IAdobeExpressAddOnSDKAPI;
+    private _addOnSDK: AddOnSDKAPI;
     private _endpoint: string;
     private _devEndpoint: string;
     private _addOnName: string;
@@ -80,7 +82,7 @@ export class ExpressAnalytics{
      * @param devEndpoint the https:// development endpoint, if not specified the 
      * endpoint will be used when in development
      */
-    constructor(addOnSDK: IAdobeExpressAddOnSDKAPI, endpoint: string, devEndpoint?: string){
+    constructor(addOnSDK: AddOnSDKAPI, endpoint: string, devEndpoint?: string){
         if (!addOnSDK) throw new Error("Express Analytics: addOnSDK is undefined.");
         if (!endpoint) throw new Error("Express Analytics: endpoint cannot be empty.");
         if (!endpoint.startsWith("https://")) throw new Error("Express Analytics: endpoint must start with https://");
@@ -112,7 +114,7 @@ export class ExpressAnalytics{
      */
     async trackUserAsync(extra?: Record<string,string>): Promise<boolean>{
         try{
-            const userId = await this._addOnSDK.app.currentUser.userId();
+            const userId = (await this._addOnSDK.app.currentUser.identity()).userId;
             const isPremiumUser = await this._addOnSDK.app.currentUser.isPremiumUser();
             const isAnonymousUser = await this._addOnSDK.app.currentUser.isAnonymousUser();
 
@@ -189,7 +191,7 @@ export class ExpressAnalytics{
 
             if (reservedNames.includes(eventName)) throw new Error(`Express Analytics: Cannot track a ${eventName} event using trackEventAsync(), use trackUserAsync() or trackErrorAsync() instead.`);
             
-            const userId = await this._addOnSDK.app.currentUser.userId();
+            const userId = (await this._addOnSDK.app.currentUser.identity()).userId;
             
             const parameters = [
                 `e=${encodeURIComponent(eventName)}`,
@@ -242,7 +244,7 @@ export class ExpressAnalytics{
      */
     async trackErrorAsync(error: Error, extra?: Record<string,string>) : Promise<boolean>{
         try{
-            const userId = await this._addOnSDK.app.currentUser.userId();
+            const userId = (await this._addOnSDK.app.currentUser.identity()).userId
             
             const parameters = [
                 `e=_error`,
